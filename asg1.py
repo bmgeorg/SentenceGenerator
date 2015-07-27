@@ -23,10 +23,19 @@ class Cfg:
             return lhs + ' '
 
         lhs_rules = self.rules.get(lhs)
-        # pick random rule
-        i = random.randint(0, len(lhs_rules)-1)
 
-        rhs = lhs_rules[i].rhs
+        weight_sum = sum([x.weight for x in lhs_rules])
+        x = random.uniform(0, weight_sum)
+
+        chosen_rule = lhs_rules[-1]
+
+        for rule in lhs_rules:
+            x -= rule.weight
+            if x <= 0:
+                chosen_rule = rule
+                break
+
+        rhs = chosen_rule.rhs
 
         result = ''
         for x in rhs:
@@ -48,7 +57,7 @@ class CfgBuilder:
 
     def add_rule(self, lhs, rhs, weight):
         lhs_rules = self.rules.get(lhs, [])
-        lhs_rules.append(Cfg.Rule(weight, rhs))
+        lhs_rules.append(Cfg.Rule(int(weight), rhs))
         self.rules[lhs] = lhs_rules
 
     def build(self):
